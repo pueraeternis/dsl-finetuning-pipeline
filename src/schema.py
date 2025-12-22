@@ -15,6 +15,9 @@ class ColumnSchema(BaseModel):
     name: str
     type: ColumnType
     description: str
+    min_val: float | None = None
+    max_val: float | None = None
+    categories: list[str] | None = None
 
 
 class TableSchema(BaseModel):
