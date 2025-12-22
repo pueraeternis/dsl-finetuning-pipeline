@@ -294,6 +294,7 @@ dependencies = [
     { name = "faker" },
     { name = "openai" },
     { name = "pysqlite3-binary" },
+    { name = "python-dotenv" },
     { name = "sentence-transformers" },
 ]
 
@@ -303,6 +304,7 @@ requires-dist = [
     { name = "faker", specifier = ">=39.0.0" },
     { name = "openai", specifier = ">=2.14.0" },
     { name = "pysqlite3-binary", specifier = ">=0.5.4.post2" },
+    { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "sentence-transformers", specifier = ">=5.2.0" },
 ]
 

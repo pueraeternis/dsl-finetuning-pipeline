@@ -9,5 +9,6 @@ dependencies = [
     "faker>=39.0.0",
     "openai>=2.14.0",
     "pysqlite3-binary>=0.5.4.post2",
+    "python-dotenv>=1.2.1",
     "sentence-transformers>=5.2.0",
 ]
