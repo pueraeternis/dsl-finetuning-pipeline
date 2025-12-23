@@ -61,7 +61,7 @@ We observed rapid convergence. While the initial "warm-up" period showed gradien
 - `src/engine/`: AuraDSL-to-SQL Transpiler and Execution engine.
 - `src/retrieval/`: ChromaDB-powered RAG for dynamic context.
 - `src/inference.py`: Production-ready inference class.
-- `mass_generator.py`: Synthetic data engine (Skeleton + LLM Infilling).
+- `dataset.py`: Synthetic data engine (Skeleton + LLM Infilling).
 - `train.py`: Unsloth fine-tuning script.
 - `evaluate.py`: Rigorous execution-based evaluation suite.
 - `test.py`: Detailed debug script for prompt/RAG inspection.
