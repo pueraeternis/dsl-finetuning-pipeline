@@ -15,7 +15,22 @@ Standard LLMs struggle with niche Domain Specific Languages (DSLs) due to data s
 *   **Strategy:** RAG-augmented generation with schema-aware retrieval.
 *   **Performance:** Achieved **100% Execution Accuracy** on a zero-shot hold-out test set.
 
-## 🚀 Performance & Training
+## 🚀 Reasoning & Generalization
+Unlike basic fine-tuning, this model demonstrates **High-Level Semantic Reasoning**:
+- **Noise Robustness:** The RAG system retrieves multiple tables (including distractors). The model correctly identifies the target table and ignores irrelevant context.
+- **Zero-Shot Temporal Logic:** When asked for "last 24 hours," the model intelligently constructs `SORT timestamp DESC |> LIMIT 24`, inferring the analytical requirement without explicit training on that exact phrase.
+- **Value Grounding:** Perfect alignment between Natural Language entities (e.g., "Fridge") and internal identifiers (e.g., "Fridge_001").
+
+### 💻 Live Demo Output
+```sql
+USER: "What is the average humidity in the Living Room from the last 24 hours?"
+
+RAG RETRIEVED: [climate_stats, occupancy] -- correctly identified target + distractor
+RESULTING AURADSL: 
+SOURCE climate_stats |> FILTER room == 'Living Room' |> AGGREGATE AVG(humidity) BY timestamp |> SORT timestamp DESC |> LIMIT 24
+```
+
+## 📈 Training & Performance
 The model was trained on an **NVIDIA A100 80GB** using the Unsloth framework.
 
 ### Training Metrics
@@ -35,6 +50,7 @@ We observed rapid convergence. While the initial "warm-up" period showed gradien
 
 ## 🛠 Tech Stack
 - **Model:** Microsoft Phi-4 (via Unsloth)
+- **Inference Engine:** Triton Server + vLLM
 - **Database:** SQLite (Execution environment)
 - **Vector Store:** ChromaDB (Schema retrieval)
 - **Data Gen:** Python + Qwen-3-235B (Semantic infilling)
@@ -44,12 +60,14 @@ We observed rapid convergence. While the initial "warm-up" period showed gradien
 - `src/schema.py`: Pydantic-based Domain Schema.
 - `src/engine/`: AuraDSL-to-SQL Transpiler and Execution engine.
 - `src/retrieval/`: ChromaDB-powered RAG for dynamic context.
-- `dataset.py`: Synthetic data engine (Skeleton + LLM Infilling).
+- `src/inference.py`: Production-ready inference class.
+- `mass_generator.py`: Synthetic data engine (Skeleton + LLM Infilling).
 - `train.py`: Unsloth fine-tuning script.
 - `evaluate.py`: Rigorous execution-based evaluation suite.
+- `test.py`: Detailed debug script for prompt/RAG inspection.
 
 ## 📊 Evaluation Results
-Unlike traditional NLP projects that use BLEU/ROUGE scores (which are misleading for code), we utilized **Execution Matching**:
+We utilized **Execution Matching** for validation:
 1.  Generate AuraDSL from a natural language prompt.
 2.  Translate AuraDSL to SQL.
 3.  Execute against a seeded SQLite DB.

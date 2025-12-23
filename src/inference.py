@@ -13,7 +13,7 @@ class AuraInference:
 
     def __init__(self, model_path: str) -> None:
         """Initialize the model and the schema retriever."""
-        # Load the model for inference
+        logger.info("Loading model for inference from: %s", model_path)
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
             model_name=model_path,
             max_seq_length=Config.MAX_SEQ_LENGTH,
@@ -21,8 +21,6 @@ class AuraInference:
             load_in_4bit=True,
         )
         FastLanguageModel.for_inference(self.model)
-
-        # Initialize RAG component
         self.retriever = SchemaRetriever(AETHERIS_DB)
 
     def _format_context(self, tables: list[TableSchema]) -> str:
@@ -34,21 +32,17 @@ class AuraInference:
             context_parts.append(part)
         return "\n".join(context_parts)
 
+    def get_full_context_and_prompt(self, nl_query: str) -> tuple[str, str]:
+        """Returns the formatted context and the final prompt for debugging."""
+        relevant_tables = self.retriever.get_relevant_tables(nl_query, top_k=2)
+        context = self._format_context(relevant_tables)
+        full_prompt = Config.PROMPT_STYLE.format(context, nl_query, "")
+        return context, full_prompt
+
     def predict(self, nl_query: str) -> str:
         """Executes the full Text-to-DSL pipeline."""
-        # Semantic Search (RAG)
-        relevant_tables = self.retriever.get_relevant_tables(nl_query, top_k=2)
+        _, full_prompt = self.get_full_context_and_prompt(nl_query)
 
-        if not relevant_tables:
-            logger.warning("No tables found for query: %s", nl_query)
-            return "ERROR: Context not found"
-
-        context = self._format_context(relevant_tables)
-
-        # Format prompt using the centralized style
-        full_prompt = Config.PROMPT_STYLE.format(context, nl_query, "")
-
-        # LLM Generation
         inputs = self.tokenizer([full_prompt], return_tensors="pt").to("cuda")
 
         outputs = self.model.generate(
@@ -61,37 +55,7 @@ class AuraInference:
 
         decoded = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
 
-        # Extract the assistant's response from the formatted block
         if "### Response:" in decoded:
             return decoded.split("### Response:")[1].strip()
 
         return decoded
-
-
-def main() -> None:
-    """Main execution entry point for inference tests."""
-    model_path = str(Config.BASE_DIR / "models" / "phi-4-auradsl-20251223_0845")
-
-    logger.info("Initializing inference engine with model at %s", model_path)
-    engine = AuraInference(model_path)
-
-    test_queries: list[str] = [
-        "How much electricity did the fridge use today?",
-        "Check all climate sensors in the kitchen and garage.",
-        "List top 5 security logs with high severity from yesterday.",
-        "Show me water leaks detected in the last 24 hours.",
-    ]
-
-    logger.info("Starting test queries execution...")
-
-    for query in test_queries:
-        logger.info("Processing NL: %s", query)
-        try:
-            dsl = engine.predict(query)
-            logger.info("Resulting AuraDSL: %s", dsl)
-        except Exception as e:
-            logger.error("Failed to generate DSL for query '%s': %s", query, e)
-
-
-if __name__ == "__main__":
-    main()

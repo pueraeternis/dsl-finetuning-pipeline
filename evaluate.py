@@ -2,10 +2,10 @@ import json
 
 from tqdm import tqdm
 
-from main_inference import AuraInference
 from src.config import Config
 from src.engine.db import DBManager
 from src.engine.transpiler import AuraTranspiler
+from src.inference import AuraInference
 from src.schema import AETHERIS_DB
 
 MODEL_PATH = str(Config.BASE_DIR / "models" / "phi-4-auradsl-20251223_0845")
