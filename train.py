@@ -19,7 +19,7 @@ from src.logger import get_logger
 logger = get_logger(__name__)
 
 # --- Configuration ---
-DATASET_PATH: Path = Path("data/dataset_final.json")
+DATASET_PATH: Path = Path("data/dataset_train.json")
 MAX_SEQ_LENGTH: int = 2048
 NUM_TRAIN_EPOCHS: int = 3
 BASE_MODEL_PATH: str = "unsloth/phi-4-unsloth-bnb-4bit"

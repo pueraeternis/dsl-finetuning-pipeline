@@ -123,16 +123,20 @@ def flatten_dataset(raw_data_path: Path, output_path: Path):
 
 async def main():
     Config.ensure_dirs()
-    total_skeletons = 3340
-
     mg = MassGenerator(concurrency=50)
 
-    await mg.run(total_skeletons)
-
-    raw_path = Config.DATA_DIR / "dataset_raw.json"
+    # Generate Train dataset
+    await mg.run(total_skeletons=3500)
+    raw_path = Config.DATA_DIR / "dataset_raw_train.json"
     mg.save_raw(raw_path)
+    final_path = Config.DATA_DIR / "dataset_train.json"
+    flatten_dataset(raw_path, final_path)
 
-    final_path = Config.DATA_DIR / "dataset_final.json"
+    # Generate Test dataset
+    await mg.run(total_skeletons=100)
+    raw_path = Config.DATA_DIR / "dataset_raw_test.json"
+    mg.save_raw(raw_path)
+    final_path = Config.DATA_DIR / "dataset_test.json"
     flatten_dataset(raw_path, final_path)
 
 
