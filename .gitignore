@@ -1,3 +1,6 @@
+# Models
+models
+
 # Data
 data
 
@@ -5,6 +8,8 @@ data
 __pycache__/
 *.py[codz]
 *$py.class
+unsloth_compiled_cache
+_unsloth_temporary_saved_buffers
 
 # C extensions
 *.so
