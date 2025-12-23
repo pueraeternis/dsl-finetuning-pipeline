@@ -9,6 +9,16 @@ This project demonstrates a production-grade pipeline for adapting a Large Langu
 
 Standard LLMs struggle with niche Domain Specific Languages (DSLs) due to data scarcity. This repository solves the problem through a **Schema-Driven Synthetic Generation** strategy and **Execution-based Evaluation**, ensuring the model doesn't just "mimic" syntax but understands query logic.
 
+```mermaid
+flowchart LR
+    User[User Query] --> RAG{Schema RAG}
+    DB[(ChromaDB)] -.->|Retrieve Context| RAG
+    RAG -->|Prompt + Schema| LLM[Phi-4 LoRA]
+    LLM -->|Generate AuraDSL| Parser[Transpiler]
+    Parser -->|Convert to SQL| Engine[SQLite Execution]
+    Engine -->|Result| User
+```
+
 ### Key Highlights
 *   **Target DSL:** AuraDSL (Pipe-based analytics language: `SOURCE |> FILTER |> AGGREGATE`).
 *   **Base Model:** Phi-4 (15B) fine-tuned via QLoRA.
